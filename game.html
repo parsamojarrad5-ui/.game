@@ -8,7 +8,7 @@
     body {
       margin:0;
       font-family: Vazirmatn, sans-serif;
-      background:#d9a53a;
+      background:#f5d67a;
       display:flex;
       justify-content:center;
       align-items:center;
@@ -17,7 +17,7 @@
     .container {
       display:flex;
       gap:20px;
-      max-width:900px;
+      max-width:1000px;
       width:100%;
     }
     .game {
@@ -26,6 +26,7 @@
       border-radius:16px;
       padding:20px;
       box-shadow:0 8px 20px rgba(0,0,0,.2);
+      position:relative;
     }
     .sidebar {
       flex:1;
@@ -36,10 +37,10 @@
     }
     .title {text-align:center;font-size:22px;font-weight:bold;}
     .subtitle {text-align:center;color:#444;margin-bottom:12px;}
-    .hearts {display:flex;gap:6px;justify-content:center;margin:12px 0;}
+    .hearts {display:flex;gap:6px;justify-content:center;margin:12px 0;flex-wrap:wrap;}
     .heart {font-size:26px;transition:transform .2s;}
     .heart.dead {opacity:.3;transform:scale(.8);}
-    input {width:70%;height:50px;font-size:18px;border-radius:10px;border:2px solid #ccc;padding:0 10px;}
+    input {width:100%;height:50px;font-size:18px;border-radius:10px;border:2px solid #ccc;padding:0 10px;margin-top:10px;}
     .btn {
       border:none;
       border-radius:10px;
@@ -50,26 +51,35 @@
       box-shadow:0 6px 16px rgba(0,0,0,.2);
     }
     .btn-guess {background:#0f9d58;color:#fff;width:100%;font-size:22px;}
-    .btn-buy {background:#ff7f11;color:#fff;width:100%;}
+    .btn-buy {background:#ff7f11;color:#fff;width:auto;font-size:14px;position:absolute;left:20px;top:20px;}
+    .btn-settings {background:#4285f4;color:#fff;width:auto;font-size:14px;position:absolute;right:20px;top:20px;}
     .status {margin-top:14px;padding:12px;border-radius:10px;background:#fff;border:1px dashed #ccc;min-height:44px;}
     .status.bad {background:#ffe6e6;color:#d93025;}
     .status.good {background:#e6ffe6;color:#0f9d58;}
     .footer {margin-top:10px;text-align:center;}
     .pill {display:inline-block;padding:4px 10px;border-radius:999px;background:#f0f0f0;margin:4px;}
     ul {padding-right:20px;}
+    #settingsPanel {
+      display:none;
+      margin-top:20px;
+      padding:12px;
+      background:#fff;
+      border-radius:10px;
+      box-shadow:0 4px 12px rgba(0,0,0,.1);
+    }
+    #settingsPanel h3 {margin:0 0 10px;}
+    #settingsPanel input {margin-top:8px;}
   </style>
 </head>
 <body>
   <div class="container">
-    <div class="game">
+    <div class="game" id="gameArea">
       <div class="title">✨ یه عدد بین 1 تا 2500 حدس بزن ✨</div>
       <div class="subtitle">هر حدس، یکی از قلب‌ها کم می‌کنه. نزدیک‌تر می‌شی، راهنمایی می‌گیری!</div>
       <div id="hearts" class="hearts"></div>
 
-      <div>
-        <input id="guessInput" type="number" min="1" max="2500" placeholder="حدس شما" />
-        <button id="guessBtn" class="btn btn-guess">🚀 حدس بزن 🚀</button>
-      </div>
+      <input id="guessInput" type="number" min="1" max="2500" placeholder="حدس شما" />
+      <button id="guessBtn" class="btn btn-guess">🚀 حدس بزن 🚀</button>
 
       <div id="status" class="status"></div>
 
@@ -79,7 +89,15 @@
         <span class="pill">حدس‌ها: <b id="tries">0</b></span>
       </div>
 
-      <button id="buyBtn" class="btn btn-buy">💖 خرید 1 قلب اضافه</button>
+      <button id="buyBtn" class="btn btn-buy">💖 خرید قلب</button>
+      <button id="settingsBtn" class="btn btn-settings">⚙️ تنظیمات</button>
+
+      <div id="settingsPanel">
+        <h3>توضیحات</h3>
+        <p>این بازی توسط <b>پارسا مجرد</b> ساخته شده<br>کمک دبیران: استاد شاهمرادی و استاد طیب</p>
+        <h3>کد جایزه</h3>
+        <input id="bonusInput" type="text" placeholder="کد جایزه رو وارد کن" />
+      </div>
     </div>
 
     <div class="sidebar">
@@ -90,7 +108,7 @@
 
   <script>
     const MAX = 2500;
-    const START_LIVES = 10;
+    const START_LIVES = 11;
     let target = randInt(1, MAX);
     let lives = START_LIVES;
     let tries = 0;
@@ -107,6 +125,10 @@
     const maxHintEl= document.getElementById('maxHint');
     const triesEl  = document.getElementById('tries');
     const guessesEl= document.getElementById('guesses');
+    const settingsBtn = document.getElementById('settingsBtn');
+    const settingsPanel = document.getElementById('settingsPanel');
+    const bonusInput = document.getElementById('bonusInput');
+    const gameArea = document.getElementById('gameArea');
 
     renderHearts();
     setStatus('شروع کنیم! یک عدد حدس بزن 🚀');
@@ -125,6 +147,16 @@
       renderHearts();
       setStatus('یک قلب اضافه شد! 💖');
     });
+    settingsBtn.addEventListener('click', ()=>{
+      settingsPanel.style.display = settingsPanel.style.display==='none' ? 'block' : 'none';
+    });
+    bonusInput.addEventListener('input', ()=>{
+      if(bonusInput.value.trim().toLowerCase()==='parsa'){
+        gameArea.style.background='red';
+      } else {
+        gameArea.style.background='#fff7e6';
+      }
+    });
 
     function onGuess(){
       if(finished) return;
@@ -138,59 +170,4 @@
       li.textContent = val;
       guessesEl.appendChild(li);
 
-      if(val === target){
-        finished = true;
-        setStatus(`🎉 برنده شدی! عدد درست ${target} بود.`, false, true);
-        return;
-      }
-
-      lives--;
-      renderHearts();
-      triesEl.textContent = tries;
-
-      if(val < target){
-        minHint = Math.max(minHint, val+1);
-        setStatus(`کم گفتی 👇 عدد بزرگ‌تره.`, true);
-      } else {
-        maxHint = Math.min(maxHint, val-1);
-        setStatus(`زیاد گفتی 👆 عدد کوچک‌تره.`, true);
-      }
-
-      minHintEl.textContent = minHint;
-      maxHintEl.textContent = maxHint;
-
-      if(lives <= 0){
-        finished = true;
-        setStatus(`😔 باختی! عدد درست ${target} بود.`, true);
-      }
-    }
-
-    function renderHearts(){
-      heartsEl.innerHTML = '';
-      for(let i=0;i<START_LIVES;i++){
-        const span = document.createElement('span');
-        span.className = 'heart' + (i < START_LIVES - lives ? ' dead' : '');
-        span.textContent = '❤️';
-        heartsEl.appendChild(span);
-      }
-      if(lives > START_LIVES){
-        for(let i=START_LIVES;i<lives;i++){
-          const span = document.createElement('span');
-          span.className = 'heart';
-          span.textContent = '💖';
-          heartsEl.appendChild(span);
-        }
-      }
-    }
-
-    function setStatus(msg,isBad=false,isGood=false){
-      statusEl.textContent = msg;
-      statusEl.className = 'status';
-      if(isBad) statusEl.classList.add('bad');
-      if(isGood) statusEl.classList.add('good');
-    }
-
-    function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
-  </script>
-</body>
-</html>
+      inputEl
