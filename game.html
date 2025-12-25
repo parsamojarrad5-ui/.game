@@ -3,83 +3,72 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>بازی حدس عدد با قلب‌ها</title>
+  <title>بازی حدس عدد 🎮</title>
   <style>
-    :root{
-      --bg:#d9a53a;
-      --card:#fff7e6;
-      --text:#2b2b2b;
-      --accent:#0f9d58;
-      --accent2:#ff7f11;
-      --danger:#d93025;
-      --heart:#e0245e;
-    }
-    *{box-sizing:border-box}
-    body{
+    body {
       margin:0;
-      font-family: Vazirmatn, IRANSans, Segoe UI, Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height:100vh;
+      font-family: Vazirmatn, sans-serif;
+      background:#d9a53a;
       display:flex;
-      align-items:center;
       justify-content:center;
-      padding:20px;
+      align-items:center;
+      min-height:100vh;
     }
-    .container{
+    .container {
       display:flex;
       gap:20px;
+      max-width:900px;
       width:100%;
-      max-width:800px;
     }
-    .app{
+    .game {
       flex:2;
-      background:var(--card);
+      background:#fff7e6;
       border-radius:16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.15);
       padding:20px;
+      box-shadow:0 8px 20px rgba(0,0,0,.2);
     }
-    .sidebar{
+    .sidebar {
       flex:1;
       background:#fff;
       border-radius:16px;
-      box-shadow:0 6px 20px rgba(0,0,0,.1);
       padding:12px;
-      font-size:14px;
+      box-shadow:0 6px 16px rgba(0,0,0,.15);
     }
-    .title{text-align:center;font-weight:700;font-size:20px;}
-    .subtitle{text-align:center;margin-top:6px;color:#4a4a4a;font-size:14px;}
-    .hearts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:16px 0 20px;}
-    .heart{font-size:22px;filter: drop-shadow(0 2px 2px rgba(0,0,0,.15));transition: transform .15s ease, opacity .15s ease;}
-    .heart.dead{opacity:.25;transform: scale(.85);}
-    .row{display:flex;gap:10px;margin-top:8px;}
-    input[type="number"]{flex:1;height:44px;border:2px solid #ddd;border-radius:10px;padding:0 12px;font-size:16px;outline:none;}
-    .btn{border:none;border-radius:10px;height:44px;padding:0 14px;font-size:16px;cursor:pointer;color:white;display:flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(0,0,0,.15);}
-    .btn-primary{background:var(--accent)}
-    .btn-shop{background:var(--accent2);width:100%;justify-content:center;}
-    .status{margin-top:14px;padding:12px;border-radius:10px;background:#fff;border:1px dashed #e0e0e0;min-height:44px;line-height:1.6;}
-    .status.bad{border-color:#ffc9c9;background:#fff6f6;color:var(--danger)}
-    .status.good{border-color:#a8e6cf;background:#f5fffa}
-    .footer{margin-top:10px;text-align:center;font-size:12px;color:#666;}
-    .pill{display:inline-block;padding:4px 10px;border-radius:999px;background:#f0f0f0;font-size:12px;margin:6px 4px 0;}
-    ul{padding-right:20px}
+    .title {text-align:center;font-size:22px;font-weight:bold;}
+    .subtitle {text-align:center;color:#444;margin-bottom:12px;}
+    .hearts {display:flex;gap:6px;justify-content:center;margin:12px 0;}
+    .heart {font-size:26px;transition:transform .2s;}
+    .heart.dead {opacity:.3;transform:scale(.8);}
+    input {width:70%;height:50px;font-size:18px;border-radius:10px;border:2px solid #ccc;padding:0 10px;}
+    .btn {
+      border:none;
+      border-radius:10px;
+      cursor:pointer;
+      font-size:18px;
+      padding:12px 20px;
+      margin-top:10px;
+      box-shadow:0 6px 16px rgba(0,0,0,.2);
+    }
+    .btn-guess {background:#0f9d58;color:#fff;width:100%;font-size:22px;}
+    .btn-buy {background:#ff7f11;color:#fff;width:100%;}
+    .status {margin-top:14px;padding:12px;border-radius:10px;background:#fff;border:1px dashed #ccc;min-height:44px;}
+    .status.bad {background:#ffe6e6;color:#d93025;}
+    .status.good {background:#e6ffe6;color:#0f9d58;}
+    .footer {margin-top:10px;text-align:center;}
+    .pill {display:inline-block;padding:4px 10px;border-radius:999px;background:#f0f0f0;margin:4px;}
+    ul {padding-right:20px;}
   </style>
 </head>
 <body>
   <div class="container">
-    <main class="app">
+    <div class="game">
       <div class="title">✨ یه عدد بین 1 تا 2500 حدس بزن ✨</div>
       <div class="subtitle">هر حدس، یکی از قلب‌ها کم می‌کنه. نزدیک‌تر می‌شی، راهنمایی می‌گیری!</div>
-
       <div id="hearts" class="hearts"></div>
 
-      <div class="row">
-        <button id="buyBtn" class="btn btn-shop">💖 خرید 1 قلب اضافه</button>
-      </div>
-
-      <div class="row">
+      <div>
         <input id="guessInput" type="number" min="1" max="2500" placeholder="حدس شما" />
-        <button id="guessBtn" class="btn btn-primary">حدس بزن 🚀</button>
+        <button id="guessBtn" class="btn btn-guess">🚀 حدس بزن 🚀</button>
       </div>
 
       <div id="status" class="status"></div>
@@ -89,12 +78,14 @@
         <span class="pill">حداکثر: <b id="maxHint">2500</b></span>
         <span class="pill">حدس‌ها: <b id="tries">0</b></span>
       </div>
-    </main>
 
-    <aside class="sidebar">
+      <button id="buyBtn" class="btn btn-buy">💖 خرید 1 قلب اضافه</button>
+    </div>
+
+    <div class="sidebar">
       <b>حدس‌های شما:</b>
       <ul id="guesses"></ul>
-    </aside>
+    </div>
   </div>
 
   <script>
@@ -118,8 +109,7 @@
     const guessesEl= document.getElementById('guesses');
 
     renderHearts();
-    updateHUD();
-    setStatus('شروع کنیم! یک عدد حدس بزن و دکمه رو بزن.');
+    setStatus('شروع کنیم! یک عدد حدس بزن 🚀');
 
     guessBtn.addEventListener('click', onGuess);
     inputEl.addEventListener('keydown', e=>{if(e.key==='Enter') onGuess();});
@@ -143,26 +133,26 @@
         setStatus('لطفاً عددی بین 1 تا 2500 وارد کن.', true);
         return;
       }
-      tries += 1;
+      tries++;
       const li = document.createElement('li');
       li.textContent = val;
       guessesEl.appendChild(li);
 
       if(val === target){
         finished = true;
-        setStatus(`برنده شدی! 🎉 عدد درست ${target} بود.`, false, true);
+        setStatus(`🎉 برنده شدی! عدد درست ${target} بود.`, false, true);
         return;
       }
 
-      lives -= 1;
+      lives--;
       renderHearts();
-      updateHUD();
+      triesEl.textContent = tries;
 
       if(val < target){
-        minHint = Math.max(minHint, val + 1);
+        minHint = Math.max(minHint, val+1);
         setStatus(`کم گفتی 👇 عدد بزرگ‌تره.`, true);
       } else {
-        maxHint = Math.min(maxHint, val - 1);
+        maxHint = Math.min(maxHint, val-1);
         setStatus(`زیاد گفتی 👆 عدد کوچک‌تره.`, true);
       }
 
@@ -171,16 +161,15 @@
 
       if(lives <= 0){
         finished = true;
-        setStatus(`باختی 😔 عدد درست ${target} بود.`, true);
+        setStatus(`😔 باختی! عدد درست ${target} بود.`, true);
       }
     }
 
     function renderHearts(){
       heartsEl.innerHTML = '';
-      const total = START_LIVES;
-      for(let i=0;i<total;i++){
+      for(let i=0;i<START_LIVES;i++){
         const span = document.createElement('span');
-        span.className = 'heart' + (i < total - lives ? ' dead' : '');
+        span.className = 'heart' + (i < START_LIVES - lives ? ' dead' : '');
         span.textContent = '❤️';
         heartsEl.appendChild(span);
       }
@@ -194,9 +183,14 @@
       }
     }
 
-    function updateHUD(){triesEl.textContent = tries;}
     function setStatus(msg,isBad=false,isGood=false){
       statusEl.textContent = msg;
-      statusEl.classList.remove('bad','good');
+      statusEl.className = 'status';
       if(isBad) statusEl.classList.add('bad');
-      if(isGood) status
+      if(isGood) statusEl.classList.add('good');
+    }
+
+    function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min;}
+  </script>
+</body>
+</html>
