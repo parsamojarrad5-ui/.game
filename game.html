@@ -5,20 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>بازی حدس عدد 🎮</title>
   <style>
-    body {
-      margin:0;
-      font-family: Vazirmatn, sans-serif;
-      background:#f5d67a;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:100vh;
-    }
+    body {margin:0;font-family:Vazirmatn,sans-serif;background:#f5d67a;
+      display:flex;justify-content:center;align-items:center;min-height:100vh;}
     .container {display:flex;gap:20px;max-width:1000px;width:100%;}
-    .game {
-      flex:2;background:#fff7e6;border-radius:16px;padding:20px;
-      box-shadow:0 8px 20px rgba(0,0,0,.2);position:relative;
-    }
+    .game {flex:2;background:#fff7e6;border-radius:16px;padding:20px;
+      box-shadow:0 8px 20px rgba(0,0,0,.2);position:relative;}
     .sidebar {flex:1;background:#fff;border-radius:16px;padding:12px;
       box-shadow:0 6px 16px rgba(0,0,0,.15);}
     .title {text-align:center;font-size:22px;font-weight:bold;}
@@ -39,6 +30,7 @@
       border:1px dashed #ccc;min-height:44px;}
     .status.bad {background:#ffe6e6;color:#d93025;}
     .status.good {background:#e6ffe6;color:#0f9d58;}
+    .status.yellow {background:#fff9c4;color:#f57f17;}
     .footer {margin-top:10px;text-align:center;}
     .pill {display:inline-block;padding:4px 10px;border-radius:999px;background:#f0f0f0;margin:4px;}
     ul {padding-right:20px;}
@@ -46,6 +38,7 @@
       border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.1);}
     #settingsPanel h3 {margin:0 0 10px;}
     #settingsPanel input {margin-top:8px;}
+    #restartBtn {display:none;background:#d93025;color:#fff;width:100%;font-size:20px;}
   </style>
 </head>
 <body>
@@ -68,6 +61,7 @@
 
       <button id="buyBtn" class="btn btn-buy">💖 خرید قلب</button>
       <button id="settingsBtn" class="btn btn-settings">⚙️ تنظیمات</button>
+      <button id="restartBtn" class="btn">🔄 شروع دوباره</button>
 
       <div id="settingsPanel">
         <h3>توضیحات</h3>
@@ -86,12 +80,7 @@
   <script>
     const MAX = 2500;
     const START_LIVES = 11;
-    let target = randInt(1, MAX);
-    let lives = START_LIVES;
-    let tries = 0;
-    let minHint = 1, maxHint = MAX;
-    let finished = false;
-    let buyCount = 0;
+    let target, lives, tries, minHint, maxHint, finished, buyCount, score;
 
     const heartsEl = document.getElementById('hearts');
     const inputEl  = document.getElementById('guessInput');
@@ -106,74 +95,37 @@
     const settingsPanel = document.getElementById('settingsPanel');
     const bonusInput = document.getElementById('bonusInput');
     const gameArea = document.getElementById('gameArea');
+    const restartBtn = document.getElementById('restartBtn');
 
-    renderHearts();
-    setStatus('شروع کنیم! یک عدد حدس بزن 🚀');
+    startGame();
 
     guessBtn.addEventListener('click', onGuess);
     inputEl.addEventListener('keydown', e=>{if(e.key==='Enter') onGuess();});
-    buyBtn.addEventListener('click', ()=>{
-      if(finished) return;
-      if(buyCount >= 2){
-        setStatus('دیگه نمی‌تونی قلب بخری ❌', true);
-        buyBtn.disabled = true;
-        return;
-      }
-      lives += 1;
-      buyCount += 1;
+    buyBtn.addEventListener('click', buyHeart);
+    settingsBtn.addEventListener('click', ()=>{settingsPanel.style.display = settingsPanel.style.display==='none' ? 'block' : 'none';});
+    bonusInput.addEventListener('input', ()=>{gameArea.style.background = bonusInput.value.trim().toLowerCase()==='parsa' ? 'red' : '#fff7e6';});
+    restartBtn.addEventListener('click', startGame);
+
+    function startGame(){
+      target = randInt(1, MAX);
+      lives = START_LIVES;
+      tries = 0;
+      minHint = 1; maxHint = MAX;
+      finished = false;
+      buyCount = 0;
+      score = 0;
+      guessesEl.innerHTML = '';
+      inputEl.value = '';
+      buyBtn.disabled = false;
+      restartBtn.style.display = 'none';
       renderHearts();
-      setStatus('یک قلب اضافه شد! 💖');
-    });
-    settingsBtn.addEventListener('click', ()=>{
-      settingsPanel.style.display = settingsPanel.style.display==='none' ? 'block' : 'none';
-    });
-    bonusInput.addEventListener('input', ()=>{
-      if(bonusInput.value.trim().toLowerCase()==='parsa'){
-        gameArea.style.background='red';
-      } else {
-        gameArea.style.background='#fff7e6';
-      }
-    });
+      updateHUD();
+      setStatus('شروع کنیم! یک عدد حدس بزن 🚀');
+    }
 
     function onGuess(){
       if(finished) return;
       const val = Number(inputEl.value);
       if(!Number.isInteger(val) || val < 1 || val > MAX){
-        setStatus('لطفاً عددی بین 1 تا 2500 وارد کن.', true);
-        return;
-      }
-      tries++;
-      const li = document.createElement('li');
-      li.textContent = val;
-      guessesEl.appendChild(li);
-
-      inputEl.value = ""; // پاک کردن عدد قبلی
-
-      if(val === target){
-        finished = true;
-        setStatus(`🎉 برنده شدی! عدد درست ${target} بود.`, false, true);
-        return;
-      }
-
-      lives--;
-      renderHearts();
-      triesEl.textContent = tries;
-
-      if(val < target){
-        minHint = Math.max(minHint, val+1);
-        setStatus(`کم گفتی 👇 عدد بزرگ‌تره.`, true);
-      } else {
-        maxHint = Math.min(maxHint, val-1);
-        setStatus(`زیاد گفتی 👆 عدد کوچک‌تره.`, true);
-      }
-
-      minHintEl.textContent = minHint;
-      maxHintEl.textContent = maxHint;
-
-      if(lives <= 0){
-        finished = true;
-        setStatus(`😔 باختی! عدد درست ${target} بود.`, true);
-      }
-    }
-
-    function renderHearts(){
+        score -= 5;
+        setStatus('کارت زرد! عدد باید بین 1 تا
