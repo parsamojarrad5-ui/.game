@@ -14,59 +14,36 @@
       align-items:center;
       min-height:100vh;
     }
-    .container {
-      display:flex;
-      gap:20px;
-      max-width:1000px;
-      width:100%;
-    }
+    .container {display:flex;gap:20px;max-width:1000px;width:100%;}
     .game {
-      flex:2;
-      background:#fff7e6;
-      border-radius:16px;
-      padding:20px;
-      box-shadow:0 8px 20px rgba(0,0,0,.2);
-      position:relative;
+      flex:2;background:#fff7e6;border-radius:16px;padding:20px;
+      box-shadow:0 8px 20px rgba(0,0,0,.2);position:relative;
     }
-    .sidebar {
-      flex:1;
-      background:#fff;
-      border-radius:16px;
-      padding:12px;
-      box-shadow:0 6px 16px rgba(0,0,0,.15);
-    }
+    .sidebar {flex:1;background:#fff;border-radius:16px;padding:12px;
+      box-shadow:0 6px 16px rgba(0,0,0,.15);}
     .title {text-align:center;font-size:22px;font-weight:bold;}
     .subtitle {text-align:center;color:#444;margin-bottom:12px;}
     .hearts {display:flex;gap:6px;justify-content:center;margin:12px 0;flex-wrap:wrap;}
     .heart {font-size:26px;transition:transform .2s;}
     .heart.dead {opacity:.3;transform:scale(.8);}
-    input {width:100%;height:50px;font-size:18px;border-radius:10px;border:2px solid #ccc;padding:0 10px;margin-top:10px;}
-    .btn {
-      border:none;
-      border-radius:10px;
-      cursor:pointer;
-      font-size:18px;
-      padding:12px 20px;
-      margin-top:10px;
-      box-shadow:0 6px 16px rgba(0,0,0,.2);
-    }
+    input {width:100%;height:50px;font-size:18px;border-radius:10px;
+      border:2px solid #ccc;padding:0 10px;margin-top:10px;}
+    .btn {border:none;border-radius:10px;cursor:pointer;font-size:18px;
+      padding:12px 20px;margin-top:10px;box-shadow:0 6px 16px rgba(0,0,0,.2);}
     .btn-guess {background:#0f9d58;color:#fff;width:100%;font-size:22px;}
-    .btn-buy {background:#ff7f11;color:#fff;width:auto;font-size:14px;position:absolute;left:20px;top:20px;}
-    .btn-settings {background:#4285f4;color:#fff;width:auto;font-size:14px;position:absolute;right:20px;top:20px;}
-    .status {margin-top:14px;padding:12px;border-radius:10px;background:#fff;border:1px dashed #ccc;min-height:44px;}
+    .btn-buy {background:#ff7f11;color:#fff;width:auto;font-size:14px;
+      position:absolute;left:20px;top:20px;}
+    .btn-settings {background:#4285f4;color:#fff;width:auto;font-size:14px;
+      position:absolute;right:20px;top:20px;}
+    .status {margin-top:14px;padding:12px;border-radius:10px;background:#fff;
+      border:1px dashed #ccc;min-height:44px;}
     .status.bad {background:#ffe6e6;color:#d93025;}
     .status.good {background:#e6ffe6;color:#0f9d58;}
     .footer {margin-top:10px;text-align:center;}
     .pill {display:inline-block;padding:4px 10px;border-radius:999px;background:#f0f0f0;margin:4px;}
     ul {padding-right:20px;}
-    #settingsPanel {
-      display:none;
-      margin-top:20px;
-      padding:12px;
-      background:#fff;
-      border-radius:10px;
-      box-shadow:0 4px 12px rgba(0,0,0,.1);
-    }
+    #settingsPanel {display:none;margin-top:20px;padding:12px;background:#fff;
+      border-radius:10px;box-shadow:0 4px 12px rgba(0,0,0,.1);}
     #settingsPanel h3 {margin:0 0 10px;}
     #settingsPanel input {margin-top:8px;}
   </style>
@@ -170,4 +147,33 @@
       li.textContent = val;
       guessesEl.appendChild(li);
 
-      inputEl
+      inputEl.value = ""; // پاک کردن عدد قبلی
+
+      if(val === target){
+        finished = true;
+        setStatus(`🎉 برنده شدی! عدد درست ${target} بود.`, false, true);
+        return;
+      }
+
+      lives--;
+      renderHearts();
+      triesEl.textContent = tries;
+
+      if(val < target){
+        minHint = Math.max(minHint, val+1);
+        setStatus(`کم گفتی 👇 عدد بزرگ‌تره.`, true);
+      } else {
+        maxHint = Math.min(maxHint, val-1);
+        setStatus(`زیاد گفتی 👆 عدد کوچک‌تره.`, true);
+      }
+
+      minHintEl.textContent = minHint;
+      maxHintEl.textContent = maxHint;
+
+      if(lives <= 0){
+        finished = true;
+        setStatus(`😔 باختی! عدد درست ${target} بود.`, true);
+      }
+    }
+
+    function renderHearts(){
